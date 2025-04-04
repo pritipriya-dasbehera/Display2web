@@ -54,7 +54,7 @@ http://<LOCAL_IP>:3000/watch
 ## Contributing
 
 This was originally created by Ishaan Ohri back in 2021. It wasn't maintained since then so I forked it, 
-updatd the components and made changes to allow macs/ipads to be used as second displys.
+updated the components and made changes to allow macs/ipads to be used as second displays.
 
 Any contributions you make are **greatly appreciated**.
 
