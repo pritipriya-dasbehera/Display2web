@@ -1,18 +1,18 @@
 <code>
-  <h1 align="center">WebeXtend</h1>
+  <h1 align="center">Display2web</h1>
   <h3 align="center">The Screen Sharing App</h3>
 </code>
 
 <div align="center">
-  <img src="https://img.shields.io/github/repo-size/pritipriya-dasbehera/WebeXtend?logo=github" hspace="5">
-  <img src="https://img.shields.io/github/license/pritipriya-dasbehera/WebeXtend" hspace="5">
-  <img src="https://img.shields.io/github/last-commit/pritipriya-dasbehera/WebeXtend?logo=git">
+  <img src="https://img.shields.io/github/repo-size/pritipriya-dasbehera/Display2web?logo=github" hspace="5">
+  <img src="https://img.shields.io/github/license/pritipriya-dasbehera/Display2web" hspace="5">
+  <img src="https://img.shields.io/github/last-commit/pritipriya-dasbehera/Display2web?logo=git">
 </div>
 
 <br>
 
 <p align="center">
-  Now use any device with a web browser as a second screen for your laptop or PC. No cables. No internet. No software installation. Just WebeXtend, that's it.
+  Now use any device with a web browser as a second screen for your laptop or PC. No cables. No internet. No software installation. Just Display2web, that's it.
 </p>
 
 ## Steps to start server
@@ -22,10 +22,10 @@ You can either install node js yourself or use the docker image (recommended)
 #### 1. Clone repository
 
 ```
-git clone https://github.com/pritipriya-dasbehera/WebeXtend
+git clone https://github.com/pritipriya-dasbehera/Display2web
 ```
 
-#### 2.1 Start WebeXtend server (if node js installed)
+#### 2.1 Start Display2web server (if node js installed)
 
 - Install packages
 
@@ -40,7 +40,7 @@ npm start
 
 ```
 
-#### 2.2 Start WebeXtend server (using docker compose)
+#### 2.2 Start Display2web server (using docker compose)
 
 - Build and serve docker
 
@@ -77,7 +77,7 @@ Any contributions you make are **greatly appreciated**.
 
 ## License
 
-The project is distributed under the MIT License. See [LICENSE](https://github.com/pritipriya-dasbehera/WebeXtend/blob/master/LICENSE) for more information.
+The project is distributed under the MIT License. See [LICENSE](https://github.com/pritipriya-dasbehera/Display2web/blob/master/LICENSE) for more information.
 
 ## Author
 
