@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  webextend:
+    build: .
+    network_mode: host
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+    volumes:
+      - .:/app
+    restart: unless-stopped

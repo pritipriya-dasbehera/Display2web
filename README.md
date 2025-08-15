@@ -17,13 +17,15 @@
 
 ## Steps to start server
 
+You can either install node js yourself or use the docker image (recommended)
+
 #### 1. Clone repository
 
 ```
 git clone https://github.com/pritipriya-dasbehera/WebeXtend
 ```
 
-#### 2. Start WebeXtend server
+#### 2.1 Start WebeXtend server (if node js installed)
 
 - Install packages
 
@@ -35,6 +37,15 @@ npm ci
 
 ```
 npm start
+
+```
+
+#### 2.2 Start WebeXtend server (using docker compose)
+
+- Build and serve docker
+
+```
+docker compose up --build
 ```
 
 #### 3. Open browser:
@@ -53,7 +64,7 @@ http://<LOCAL_IP>:3000/watch
 
 ## Contributing
 
-This was originally created by Ishaan Ohri back in 2021. It wasn't maintained since then so I forked it, 
+This was originally created by Ishaan Ohri back in 2021. It wasn't maintained since then so I forked it,
 updated the components and made changes to allow macs/ipads to be used as second displays.
 
 Any contributions you make are **greatly appreciated**.
