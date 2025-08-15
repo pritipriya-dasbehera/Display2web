@@ -1,61 +1,59 @@
-/* eslint-disable prefer-template */
 /*
- * @Author: Ishaan Ohri
- * @Date: 2021-02-03 14:14:17
- * @Last Modified by: Ishaan Ohri
- * @Last Modified time: 2021-02-07 17:21:55
- * @Description: Main driver file for the server
+ * Main driver file for the server (refactored for modern Express/Socket.io)
  */
 
-import express, { Application } from 'express';
+import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
+import http from 'http';
+import { Server } from 'socket.io';
 import { router } from './api/routes';
 import { PORT, HOST } from './config';
 import logger from './log/config';
 
-// Initializing Express App
-const app: Application = express();
+// Initialize Express App
+const app = express();
 
-// EJS and static files
+// Set EJS as view engine and serve static files
 app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Creating Socket.io and HTTP Server
-const server = createServer(app);
-const io = new Server(server);
+// Create HTTP server and Socket.io instance
+const server = http.createServer(app);
+const io = new Server(server, {
+	cors: {
+		origin: '*', // Adjust as needed for production
+		methods: ['GET', 'POST'],
+	},
+});
 
-// CORS
+// Enable CORS
 app.use(cors());
 
-// Body parser
+// Enable JSON body parsing
 app.use(express.json());
 
-// Establishing io connections
-io.on('connection', (socket: Socket) => {
-	socket.on('join', ({ roomId, user }: { roomId: string; user: string }) => {
-		// Using console.log for server-side info as logger might not be configured correctly everywhere
+// Socket.io connection handler
+io.on('connection', (socket) => {
+	socket.on('join', ({ roomId, user }) => {
 		console.log(`User ${user} joining room ${roomId}`);
 		socket.join(roomId);
 		// Notify others in the room that a new user connected
-		socket.to(roomId).broadcast.emit('user-connected', user);
+		socket.to(roomId).emit('user-connected', user);
 		console.log(`Emitted 'user-connected' for user ${user} in room ${roomId}`);
 
 		socket.on('disconnect', () => {
 			console.log(`User ${user} disconnected from room ${roomId}`);
-			socket.to(roomId).broadcast.emit('user-disconnected', user);
+			socket.to(roomId).emit('user-disconnected', user);
 		});
 	});
-	// Removed getSharerId handler
 });
 
-// Import routers
+// Use API routers
 app.use(router);
 
-// Start Express App
+// Start server
 server.listen(PORT, HOST, () => {
 	logger.info(`🚀 Server running on http://${HOST}:${PORT} 🚀`);
 });

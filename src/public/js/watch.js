@@ -8,7 +8,19 @@ let myId;
 
 const socket = io();
 
-var peer = new Peer();
+// Modern PeerJS initialization with TURN/STUN servers
+const peer = new Peer({
+	config: {
+		iceServers: [
+			{ urls: 'stun:stun.l.google.com:19302' },
+			{
+				urls: 'turn:relay1.expressturn.com:3478',
+				username: 'expressturn',
+				credential: 'expressturn',
+			},
+		],
+	},
+});
 
 peer.on('open', function (id) {
 	console.log('[Watch] PeerJS connection opened. Watcher ID: ' + id);
@@ -35,11 +47,14 @@ peer.on('call', function (call) {
 
 		video.addEventListener('loadedmetadata', () => {
 			console.log('[Watch] Video metadata loaded.');
-			video.play().then(() => {
-				console.log('[Watch] Video playback started.');
-			}).catch(e => {
-				console.error('[Watch] Video playback failed:', e);
-			});
+			video
+				.play()
+				.then(() => {
+					console.log('[Watch] Video playback started.');
+				})
+				.catch((e) => {
+					console.error('[Watch] Video playback failed:', e);
+				});
 		});
 
 		video.addEventListener('error', (e) => {

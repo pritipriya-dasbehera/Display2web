@@ -1,4 +1,3 @@
-
 const modal = document.getElementById('myModal');
 const btn = document.getElementById('share-btn');
 const span = document.getElementsByClassName('close')[0];
@@ -14,7 +13,19 @@ let myId;
 
 const socket = io();
 
-var peer = new Peer();
+// Modern PeerJS initialization with TURN/STUN servers
+const peer = new Peer({
+	config: {
+		iceServers: [
+			{ urls: 'stun:stun.l.google.com:19302' },
+			{
+				urls: 'turn:relay1.expressturn.com:3478',
+				username: 'expressturn',
+				credential: 'expressturn',
+			},
+		],
+	},
+});
 
 socket.on('user-connected', (newUser) => {
 	if (clientId === null) {
@@ -61,82 +72,90 @@ function shareScreen() {
 	console.log('shareScreen function called'); // Log function entry
 
 	if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-		console.error('Error: navigator.mediaDevices.getDisplayMedia is not available. This might be because the page is not served over HTTPS or accessed via localhost.');
+		console.error(
+			'Error: navigator.mediaDevices.getDisplayMedia is not available. This might be because the page is not served over HTTPS or accessed via localhost.'
+		);
 		alert('Screen sharing is not available. Please access this page via localhost or ensure it is served over HTTPS.');
 		// Disable the button as screen sharing is not possible
 		startBtn.disabled = true;
 		return; // Stop the function
 	}
 
-	navigator.mediaDevices.getDisplayMedia({ cursor: true }).then((stream) => {
-		console.log('getDisplayMedia successful, got stream'); // Log stream acquisition
-		video.srcObject = stream;
+	navigator.mediaDevices
+		.getDisplayMedia({ cursor: true })
+		.then((stream) => {
+			console.log('getDisplayMedia successful, got stream'); // Log stream acquisition
+			video.srcObject = stream;
 
-		startBtn.disabled = true;
-		stopBtn.disabled = false;
+			startBtn.disabled = true;
+			stopBtn.disabled = false;
 
-		video.style.width = '50%';
-		video.style.height = '50%';
-		video.style.marginLeft = 'auto';
-		video.style.marginRight = 'auto';
+			video.style.width = '50%';
+			video.style.height = '50%';
+			video.style.marginLeft = 'auto';
+			video.style.marginRight = 'auto';
 
-		video.addEventListener('loadedmetadata', () => {
-			video.play();
-		});
+			video.addEventListener('loadedmetadata', () => {
+				video.play();
+			});
 
-		videoGrid.append(video);
+			videoGrid.append(video);
 
-		stopBtn.onclick = () => {
-			stopScreen(stream);
-		};
+			stopBtn.onclick = () => {
+				stopScreen(stream);
+			};
 
-		stream.getVideoTracks()[0].onended = function () {
-			stopScreen(stream);
-		};
+			stream.getVideoTracks()[0].onended = function () {
+				stopScreen(stream);
+			};
 
-		socket.on('user-disconnected', (disconnectedUser) => {
-			console.log('Watcher PeerJS ID disconnected: ' + disconnectedUser); // Use console.log
-			if (disconnectedUser === clientId) {
-				clientId = null; // Reset clientId when watcher disconnects
-				clientStatus.style.backgroundColor = '#EE695E';
-				clientStatus.innerHTML = 'Client disconnected';
-				stopScreen(stream); // Stop sharing if the watcher disconnects
+			socket.on('user-disconnected', (disconnectedUser) => {
+				console.log('Watcher PeerJS ID disconnected: ' + disconnectedUser); // Use console.log
+				if (disconnectedUser === clientId) {
+					clientId = null; // Reset clientId when watcher disconnects
+					clientStatus.style.backgroundColor = '#EE695E';
+					clientStatus.innerHTML = 'Client disconnected';
+					stopScreen(stream); // Stop sharing if the watcher disconnects
+				}
+			});
+
+			// Ensure clientId is set (watcher has connected) before calling
+			console.log(`Checking clientId before calling: ${clientId}`); // Log clientId value
+			if (clientId) {
+				console.log(`Calling watcher with ID: ${clientId}`);
+				var call = peer.call(clientId, stream);
+				// Optional: Handle call errors or close events if needed
+				call.on('error', (err) => {
+					console.error('Peer call error:', err);
+				});
+				call.on('close', () => {
+					console.log('Peer call closed');
+				});
+			} else {
+				console.error('Cannot start share: clientId is null or undefined.');
+				// Optionally provide feedback to the user
+				stopScreen(stream); // Stop the local stream if we can't call
 			}
+
+			// call.on('stream', function (stream) { // This part is usually handled by the receiver ('call' event in watch.js)
+			// 	video.srcObject = stream;
+
+			// 	video.style.width = '50%';
+			// 	video.style.height = '50%';
+			// 	video.style.marginLeft = 'auto';
+			// 	video.style.marginRight = 'auto';
+
+			// 	video.addEventListener('loadedmetadata', () => {
+			// 		video.play();
+			// 	});
+
+			// 	videoGrid.append(video);
+			// });
+		})
+		.catch((err) => {
+			console.error('Error getting display media:', err); // Log errors from getDisplayMedia
+			// Ensure buttons are reset if permission is denied or another error occurs
+			startBtn.disabled = false;
+			stopBtn.disabled = true;
 		});
-
-		// Ensure clientId is set (watcher has connected) before calling
-		console.log(`Checking clientId before calling: ${clientId}`); // Log clientId value
-		if (clientId) {
-			console.log(`Calling watcher with ID: ${clientId}`);
-			var call = peer.call(clientId, stream);
-			// Optional: Handle call errors or close events if needed
-			call.on('error', (err) => { console.error('Peer call error:', err); });
-			call.on('close', () => { console.log('Peer call closed'); });
-		} else {
-			console.error('Cannot start share: clientId is null or undefined.');
-			// Optionally provide feedback to the user
-			stopScreen(stream); // Stop the local stream if we can't call
-		}
-
-
-		// call.on('stream', function (stream) { // This part is usually handled by the receiver ('call' event in watch.js)
-		// 	video.srcObject = stream;
-
-		// 	video.style.width = '50%';
-		// 	video.style.height = '50%';
-		// 	video.style.marginLeft = 'auto';
-		// 	video.style.marginRight = 'auto';
-
-		// 	video.addEventListener('loadedmetadata', () => {
-		// 		video.play();
-		// 	});
-
-		// 	videoGrid.append(video);
-		// });
-	}).catch(err => {
-		console.error('Error getting display media:', err); // Log errors from getDisplayMedia
-		// Ensure buttons are reset if permission is denied or another error occurs
-		startBtn.disabled = false;
-		stopBtn.disabled = true;
-	});
 }
