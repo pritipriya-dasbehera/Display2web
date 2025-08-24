@@ -34,12 +34,15 @@ app.use(cors());
 // Enable JSON body parsing
 app.use(express.json());
 
-// Socket.io connection handler
+interface JoinPayload {
+	roomId: string;
+	user: string;
+}
+
 io.on('connection', (socket) => {
-	socket.on('join', ({ roomId, user }) => {
+	socket.on('join', ({ roomId, user }: JoinPayload) => {
 		console.log(`User ${user} joining room ${roomId}`);
 		socket.join(roomId);
-		// Notify others in the room that a new user connected
 		socket.to(roomId).emit('user-connected', user);
 		console.log(`Emitted 'user-connected' for user ${user} in room ${roomId}`);
 
