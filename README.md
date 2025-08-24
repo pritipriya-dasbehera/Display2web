@@ -37,7 +37,6 @@ npm ci
 
 ```
 npm start
-
 ```
 
 #### 2.2 Start Display2web server (using docker compose)
